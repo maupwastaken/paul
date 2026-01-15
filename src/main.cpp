@@ -1,40 +1,22 @@
+#include <Arduino.h>
+#include <Wire.h>
 #include <iostream>
 
-#include "Controller.hpp"
+#include "CMPS14.hpp"
 
-std::unique_ptr<Controller> bot;
+CMPS14 cmps14(0x60);
 
 void setup() {
-    bot = std::make_unique<Controller>();
+    Wire.begin();
+    Serial.begin(115200);
+
+    cmps14.setOrigin();
 }
 
 void loop() {
-    bot->update();
+    cmps14.update();
 
-    Vector2 driveVector;
+    std::cout << cmps14.getHeadingDeg() << std::endl;
 
-    int factor = bot->getBallVector().getY() > 0 ? 1 : -1;
-
-    bool goalAligned = std::abs(bot->getBallVector().getY()) < 15;
-
-    if (bool behindBall = bot->getBallVector().getX() > 0; behindBall && goalAligned) {
-        driveVector = Vector2(1, 0);
-    } else {
-        driveVector = Vector2::rotate(bot->getBallVector(), factor * std::numbers::pi / 2);
-    }
-
-    driveVector.normalize();
-
-    driveVector *= 30;
-
-    double angle = bot->getGoalVector().getAngle();
-
-    int rotationSpeed = angle * -9;
-
-    std::cout << "angle: " << angle << " speed: " << rotationSpeed << std::endl;
-
-    bot->drive(driveVector);
-    bot->setRotation(rotationSpeed);
-
-    delay(5);
+    delay(10);
 }
