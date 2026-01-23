@@ -3,20 +3,76 @@
 #include <iostream>
 
 #include "CMPS14.hpp"
+#include "Controller.hpp"
+#include "MovingAverage.hpp"
 
-CMPS14 cmps14(0x60);
+std::unique_ptr<Controller> bot;
+std::unique_ptr<CMPS14> cmps14;
+
+MovingAverage speedAvg(100);
+MovingAverage alignedAvg(50);
 
 void setup() {
     Wire.begin();
     Serial.begin(115200);
 
-    cmps14.setOrigin();
+    cmps14 = std::make_unique<CMPS14>(0x60);
+    bot = std::make_unique<Controller>();
+
+    cmps14->setOrigin();
 }
 
 void loop() {
-    cmps14.update();
+    cmps14->update();
+    bot->update();
 
-    std::cout << cmps14.getHeadingDeg() << std::endl;
+    Vector2 driveVector;
 
-    delay(10);
+    double driveSpeed;
+
+    bool ballAligned = alignedAvg.add(std::abs(bot->getBallVector().getY()) < 15) > 0;
+
+    bool behindBall = bot->getBallVector().getX() > 0; 
+
+    if (!behindBall) {
+        driveSpeed = 45;
+    } else if (!ballAligned) {
+        driveSpeed = 35;
+    } else {
+        driveSpeed = 55;
+    }
+
+    double newDriveSpeed = speedAvg.add(driveSpeed);
+
+    double rotationSpeedFactor = 0.0;
+
+    double heading = 0.0;
+
+    if (behindBall && ballAligned) {
+        driveVector = bot->getBallVector();
+        driveVector.normalize();
+
+        heading = -bot->getGoalVector().getAngle();
+        rotationSpeedFactor = 6;
+    } else {
+        Vector2 ballVector = bot->getBallVector();
+        Vector2 ballVectorRotated = Vector2::rotate(ballVector, ballVector.getSignY() * std::numbers::pi / 2);
+        ballVectorRotated.normalize();
+        ballVectorRotated *= 40.0;
+
+        driveVector = ballVector + ballVectorRotated;
+        driveVector.normalize();
+
+        heading = cmps14->getHeadingRad();
+        rotationSpeedFactor = 8;
+    }
+
+    driveVector *= newDriveSpeed;
+
+    bot->drive(driveVector);
+    bot->setRotation(-heading * rotationSpeedFactor);
+
+    std::cout << driveVector << std::endl;
+
+    delay(5);
 }

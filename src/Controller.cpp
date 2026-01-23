@@ -11,8 +11,6 @@
 #include <utility>
 
 Controller::Controller() {
-    Serial.begin(115200);
-
     _pixy.init(PIXY_ADDRESS);
 
     for (int i = 0; i < 4; i++) {
@@ -83,6 +81,10 @@ Vector2 Controller::getGoalVector() {
     return _goalVector.clone();
 }
 
+double Controller::getGoalWidth() {
+    return _goalWidth;
+}
+
 void Controller::updateDrive() {
     using enum MOTOR_CONFIGURATION;
 
@@ -134,8 +136,8 @@ void Controller::updateIRData() {
     int dirRaw = data[0];
     int ballDist = data[1];
 
-    if (dirRaw > 31) dirRaw -= 32;
-    else dirRaw += 32;
+    dirRaw -= 32;
+    dirRaw *= -1;
 
     double ballDirDeg = dirRaw * 5.625;
     double ballDirRad = ballDirDeg * std::numbers::pi / 180;
@@ -158,6 +160,8 @@ void Controller::updatePixyData() {
 
         _goalVector.setX(dy);
         _goalVector.setY(dx);
+
+        _goalWidth = b.m_width;
 
         return;
     }

@@ -28,6 +28,8 @@ public:
 
     Vector2 getGoalVector();
 
+    double getGoalWidth();
+
 private:
     void updateDrive();
 
@@ -41,6 +43,8 @@ private:
 
     Vector2 _ballVector;
     Vector2 _goalVector;
+
+    double _goalWidth;
 
     double _rotationSpeed;
 

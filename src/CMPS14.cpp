@@ -12,8 +12,7 @@ CMPS14::CMPS14(int address) {
 
     _headingRad = 0.0;
     _headingDeg = 0.0;
-
-    Wire.begin(SDA, SCL);
+    _originHeadingRad = 0.0;
 }
 
 double CMPS14::getHeadingRad() {
