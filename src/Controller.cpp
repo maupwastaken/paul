@@ -85,6 +85,10 @@ double Controller::getGoalWidth() {
     return _goalWidth;
 }
 
+bool Controller::hasBall() {
+    return analogRead(36) > 3000;
+}
+
 void Controller::updateDrive() {
     using enum MOTOR_CONFIGURATION;
 
@@ -162,9 +166,5 @@ void Controller::updatePixyData() {
         _goalVector.setY(dx);
 
         _goalWidth = b.m_width;
-
-        return;
     }
-    _goalVector.setX(-1);
-    _goalVector.setY(-1);
 }

@@ -30,6 +30,8 @@ public:
 
     double getGoalWidth();
 
+    bool hasBall();
+
 private:
     void updateDrive();
 

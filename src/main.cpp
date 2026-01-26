@@ -9,8 +9,12 @@
 std::unique_ptr<Controller> bot;
 std::unique_ptr<CMPS14> cmps14;
 
-MovingAverage speedAvg(100);
-MovingAverage alignedAvg(50);
+MovingAverage speedAvg(10);
+MovingAverage alignedAvg(8);
+
+double getSpeed(double distance) {
+    return 0.6 * distance + 20;
+}
 
 void setup() {
     Wire.begin();
@@ -32,14 +36,14 @@ void loop() {
 
     bool ballAligned = alignedAvg.add(std::abs(bot->getBallVector().getY()) < 15) > 0;
 
-    bool behindBall = bot->getBallVector().getX() > 0; 
+    bool behindBall = bot->getBallVector().getX() > 0;
 
     if (!behindBall) {
-        driveSpeed = 45;
+        driveSpeed = 40;
     } else if (!ballAligned) {
-        driveSpeed = 35;
+        driveSpeed = getSpeed(std::abs(bot->getBallVector().getY()));
     } else {
-        driveSpeed = 55;
+        driveSpeed = 45;
     }
 
     double newDriveSpeed = speedAvg.add(driveSpeed);
@@ -48,12 +52,18 @@ void loop() {
 
     double heading = 0.0;
 
-    if (behindBall && ballAligned) {
-        driveVector = bot->getBallVector();
+    if (bot->hasBall()) {
+        driveVector = bot->getGoalVector();
         driveVector.normalize();
 
         heading = -bot->getGoalVector().getAngle();
-        rotationSpeedFactor = 6;
+        rotationSpeedFactor = 8;
+    } else if (behindBall && ballAligned && !bot->hasBall()) {
+        driveVector = bot->getBallVector();
+        driveVector.normalize();
+
+        heading = cmps14->getHeadingRad();
+        rotationSpeedFactor = 8;
     } else {
         Vector2 ballVector = bot->getBallVector();
         Vector2 ballVectorRotated = Vector2::rotate(ballVector, ballVector.getSignY() * std::numbers::pi / 2);
@@ -64,7 +74,7 @@ void loop() {
         driveVector.normalize();
 
         heading = cmps14->getHeadingRad();
-        rotationSpeedFactor = 8;
+        rotationSpeedFactor = 9;
     }
 
     driveVector *= newDriveSpeed;
@@ -72,7 +82,6 @@ void loop() {
     bot->drive(driveVector);
     bot->setRotation(-heading * rotationSpeedFactor);
 
-    std::cout << driveVector << std::endl;
 
     delay(5);
 }
