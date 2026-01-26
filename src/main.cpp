@@ -10,10 +10,10 @@ std::unique_ptr<Controller> bot;
 std::unique_ptr<CMPS14> cmps14;
 
 MovingAverage speedAvg(10);
-MovingAverage alignedAvg(8);
+MovingAverage alignedAvg(6);
 
 double getSpeed(double distance) {
-    return 0.6 * distance + 20;
+    return 0.55 * distance + 30;
 }
 
 void setup() {
