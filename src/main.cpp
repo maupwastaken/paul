@@ -15,8 +15,10 @@ MovingAverage alignedAvg(6);
 
 I2CButton button(0x20);
 
-double getSpeed(double distance) {
-    return 0.55 * distance + 30;
+bool botRunning = false;
+
+double getSpeed(double const x) {
+    return 3.75 * std::pow(1.45833, 15.0 * x - 8.0) + 25.0;
 }
 
 void setup() {
