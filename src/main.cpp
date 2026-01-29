@@ -5,12 +5,15 @@
 #include "CMPS14.hpp"
 #include "Controller.hpp"
 #include "MovingAverage.hpp"
+#include "I2CButton.hpp"
 
 std::unique_ptr<Controller> bot;
 std::unique_ptr<CMPS14> cmps14;
 
 MovingAverage speedAvg(10);
 MovingAverage alignedAvg(6);
+
+I2CButton button(0x20);
 
 double getSpeed(double distance) {
     return 0.55 * distance + 30;
@@ -24,11 +27,29 @@ void setup() {
     bot = std::make_unique<Controller>();
 
     cmps14->setOrigin();
+
+    button.setColor(ButtonSide::LEFT, Color::MAGENTA);
+    button.setColor(ButtonSide::RIGHT, Color::MAGENTA);
 }
 
 void loop() {
     cmps14->update();
     bot->update();
+    button.update();
+
+    if (button.getButtonStateOnce(ButtonSide::LEFT)) {
+        botRunning = !botRunning;
+    }
+    if (button.getButtonStateOnce(ButtonSide::RIGHT)) {
+        cmps14->setOrigin();
+    }
+
+    if (!botRunning) {
+        bot->drive(Vector2(0, 0));
+        bot->setRotation(0);
+
+        return;
+    }
 
     Vector2 driveVector;
 
