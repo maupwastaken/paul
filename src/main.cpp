@@ -4,14 +4,14 @@
 
 #include "CMPS14.hpp"
 #include "Controller.hpp"
-#include "MovingAverage.hpp"
 #include "I2CButton.hpp"
+#include "../include/MovingAverage.hpp"
 
 std::unique_ptr<Controller> bot;
 std::unique_ptr<CMPS14> cmps14;
 
-MovingAverage speedAvg(10);
-MovingAverage alignedAvg(6);
+MovingAverage alignedAvg(10);
+MovingAverage behindBallAvg(5);
 
 I2CButton button(0x20);
 
