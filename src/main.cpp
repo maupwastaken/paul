@@ -55,19 +55,30 @@ void loop() {
 
     double driveSpeed;
 
-    bool ballAligned = alignedAvg.add(std::abs(bot->getBallVector().getY()) < 15) > 0;
+    bool ballAligned = alignedAvg.add(std::abs(bot->getBallVector().getY()) < 20) > 0;
 
-    bool behindBall = bot->getBallVector().getX() > 0;
+    bool behindBall = behindBallAvg.add(bot->getBallVector().getX() > 0) > 0;
+
+    Vector2 ballVectorSpeed = bot->getBallVector();
+
+    ballVectorSpeed.normalize();
+
+    std::cout << bot->getBallVector() << std::endl;
 
     if (!behindBall) {
-        driveSpeed = 40;
-    } else if (!ballAligned) {
-        driveSpeed = getSpeed(std::abs(bot->getBallVector().getY()));
+        double vx = std::abs(ballVectorSpeed.getX());
+        double vy = std::abs(ballVectorSpeed.getY());
+
+        double driveComponent = vx * vx * vx + vy * vy;
+
+        driveSpeed = getSpeed(driveComponent);
     } else {
-        driveSpeed = 45;
+        driveSpeed = 50;
     }
 
-    double newDriveSpeed = speedAvg.add(driveSpeed);
+    driveSpeed = std::clamp(driveSpeed, 20.0, 80.0);
+
+    double newDriveSpeed = driveSpeed;
 
     double rotationSpeedFactor = 0.0;
 
@@ -84,12 +95,12 @@ void loop() {
         driveVector.normalize();
 
         heading = cmps14->getHeadingRad();
-        rotationSpeedFactor = 8;
+        rotationSpeedFactor = 9;
     } else {
         Vector2 ballVector = bot->getBallVector();
         Vector2 ballVectorRotated = Vector2::rotate(ballVector, ballVector.getSignY() * std::numbers::pi / 2);
         ballVectorRotated.normalize();
-        ballVectorRotated *= 40.0;
+        ballVectorRotated *= 35.0;
 
         driveVector = ballVector + ballVectorRotated;
         driveVector.normalize();
@@ -102,7 +113,5 @@ void loop() {
 
     bot->drive(driveVector);
     bot->setRotation(-heading * rotationSpeedFactor);
-
-
     delay(5);
 }
