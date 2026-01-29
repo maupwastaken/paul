@@ -25,7 +25,7 @@ double CMPS14::getHeadingDeg() {
 
 void CMPS14::setOrigin() {
     update();
-    _originHeadingRad = _headingRad;
+    _originHeadingRad = _headingRad + _originHeadingRad;
 }
 
 void CMPS14::update() {

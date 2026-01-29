@@ -1,17 +1,15 @@
-//
-// Created by Jan Schlegel on 23.07.25.
-//
-
 #include "Motor.hpp"
 #include "Config.hpp"
 
 #include <Arduino.h>
 #include <iostream>
 
+// pwm pulse width modulation
+
 Motor::Motor(pin pwm, pin dir) : _pwm(pwm), _dir(dir) {
     pinMode(_dir, OUTPUT);
 
-    ledcAttach(_pwm, PWM_FREQUENCY, PWM_RESOLUTION);
+    ledcAttach(_pwm, PWM_FREQUENCY, PWM_RESOLUTION); //led control attach
     ledcWrite(_pwm, 0);
 }
 

@@ -1,7 +1,3 @@
-//
-// Created by Jan Schlegel on 19.01.26.
-//
-
 #include "MovingAverage.hpp"
 
 MovingAverage::MovingAverage(int windowSize) {

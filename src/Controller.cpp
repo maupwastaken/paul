@@ -99,7 +99,7 @@ void Controller::updateDrive() {
     double x = _driveVector.getX();
     double y = _driveVector.getY();
 
-    double xAngle = sqrt(3) / 2;
+    double xAngle = sqrt(3) / 2; //cos30
     double yAngle = 0.5;
 
     motorSpeeds[std::to_underlying(RIGHT)] = static_cast<int>(xAngle * x + yAngle * y);

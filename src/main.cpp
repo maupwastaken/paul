@@ -5,7 +5,7 @@
 #include "CMPS14.hpp"
 #include "Controller.hpp"
 #include "I2CButton.hpp"
-#include "../include/MovingAverage.hpp"
+#include "MovingAverage.hpp"
 
 std::unique_ptr<Controller> bot;
 std::unique_ptr<CMPS14> cmps14;
@@ -30,7 +30,7 @@ void setup() {
 
     cmps14->setOrigin();
 
-    button.setColor(ButtonSide::LEFT, Color::MAGENTA);
+    button.setColor(ButtonSide::LEFT, Color::BLUE);
     button.setColor(ButtonSide::RIGHT, Color::MAGENTA);
 }
 
@@ -47,11 +47,17 @@ void loop() {
     }
 
     if (!botRunning) {
+        button.setColor(ButtonSide::LEFT, Color::BLUE);
+        button.setColor(ButtonSide::RIGHT, Color::MAGENTA);
+
         bot->drive(Vector2(0, 0));
         bot->setRotation(0);
 
         return;
     }
+
+    button.setColor(ButtonSide::LEFT, Color::OFF);
+    button.setColor(ButtonSide::RIGHT, Color::OFF);
 
     Vector2 driveVector;
 
@@ -65,8 +71,6 @@ void loop() {
 
     ballVectorSpeed.normalize();
 
-    std::cout << bot->getBallVector() << std::endl;
-
     if (!behindBall) {
         double vx = std::abs(ballVectorSpeed.getX());
         double vy = std::abs(ballVectorSpeed.getY());
@@ -79,8 +83,6 @@ void loop() {
     }
 
     driveSpeed = std::clamp(driveSpeed, 20.0, 80.0);
-
-    double newDriveSpeed = driveSpeed;
 
     double rotationSpeedFactor = 0.0;
 
@@ -111,7 +113,7 @@ void loop() {
         rotationSpeedFactor = 9;
     }
 
-    driveVector *= newDriveSpeed;
+    driveVector *= driveSpeed;
 
     bot->drive(driveVector);
     bot->setRotation(-heading * rotationSpeedFactor);
