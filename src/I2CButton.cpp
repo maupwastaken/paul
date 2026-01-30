@@ -1,7 +1,3 @@
-//
-// Created by Jan Schlemiel on 19.05.25.
-//
-
 #include "I2CButton.hpp"
 
 #include <Wire.h>

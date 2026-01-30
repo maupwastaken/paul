@@ -1,7 +1,3 @@
-//
-// Created by Jan Schlegel on 15.01.26.
-//
-
 #include "CMPS14.hpp"
 
 #include <Wire.h>

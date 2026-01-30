@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <iostream>
 
-// pwm pulse width modulation
+// pwm = pulse width modulation
 
 Motor::Motor(pin pwm, pin dir) : _pwm(pwm), _dir(dir) {
     pinMode(_dir, OUTPUT);
@@ -20,4 +20,3 @@ void Motor::speed(int speed) const {
 
     ledcWrite(_pwm, map(std::abs(speed), 0, 100, 0, _max));
 }
-
