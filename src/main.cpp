@@ -119,6 +119,3 @@ void loop() {
     bot->setRotation(-heading * rotationSpeedFactor);
     delay(5);
 }
-
-
-//test gitd
