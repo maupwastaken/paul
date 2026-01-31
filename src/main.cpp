@@ -65,24 +65,29 @@ void loop() {
 
     bool ballAligned = alignedAvg.add(std::abs(bot->getBallVector().getY()) < 20) > 0;
 
-    bool behindBall = behindBallAvg.add(bot->getBallVector().getX() > 0) > 0;
+    bool behindBall = behindBallAvg.add(bot->getBallVector().getX() > 0) == 1;
 
     Vector2 ballVectorSpeed = bot->getBallVector();
 
     ballVectorSpeed.normalize();
 
+    double vx = std::abs(ballVectorSpeed.getX());
+    double vy = std::abs(ballVectorSpeed.getY());
+
     if (!behindBall) {
-        double vx = std::abs(ballVectorSpeed.getX());
-        double vy = std::abs(ballVectorSpeed.getY());
+        double driveComponent = vx * vx + vy * vy * vy;
 
-        double driveComponent = vx * vx * vx + vy * vy;
-
-        driveSpeed = getSpeed(driveComponent);
+        driveSpeed = getSpeed(driveComponent) * 1.3; // 67 auf 0,8
     } else {
-        driveSpeed = 50;
+        if (!ballAligned) {
+            driveSpeed = 60 * vy * vy;
+            driveSpeed = std::clamp(driveSpeed, 45.0, 75.0);
+        } else {
+            driveSpeed = 65;
+        }
     }
 
-    driveSpeed = std::clamp(driveSpeed, 20.0, 80.0);
+    driveSpeed = std::clamp(driveSpeed, 35.0, 80.0); // 67 auf 60
 
     double rotationSpeedFactor = 0.0;
 
