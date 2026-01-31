@@ -150,7 +150,7 @@ void Controller::updateIRData() {
 }
 
 void Controller::updatePixyData() {
-    _pixy.ccc.getBlocks();
+    _pixy.ccc.getBlocks(false);
 
     if (_pixy.ccc.numBlocks) {
         auto const &b = _pixy.ccc.blocks[0];
