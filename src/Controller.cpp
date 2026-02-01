@@ -82,7 +82,8 @@ double Controller::getGoalWidth() {
 }
 
 bool Controller::hasBall() {
-    return analogRead(36) > 3000;
+    std::cout << analogRead(36) << std::endl;
+    return analogRead(36) > 4000;
 }
 
 void Controller::updateDrive() {
@@ -150,7 +151,7 @@ void Controller::updateIRData() {
 }
 
 void Controller::updatePixyData() {
-    _pixy.ccc.getBlocks();
+    _pixy.ccc.getBlocks(false);
 
     if (_pixy.ccc.numBlocks) {
         auto const &b = _pixy.ccc.blocks[0];

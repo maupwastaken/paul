@@ -11,11 +11,17 @@ std::unique_ptr<Controller> bot;
 std::unique_ptr<CMPS14> cmps14;
 
 MovingAverage alignedAvg(10);
-MovingAverage behindBallAvg(5);
+MovingAverage behindBallAvg(10);
 
 I2CButton button(0x20);
 
 bool botRunning = false;
+bool hasBall = false;
+bool alreadyAligned = false;
+
+std::chrono::time_point<std::chrono::high_resolution_clock> lastBallAlignedTimePoint;
+
+std::chrono::duration<std::chrono::milliseconds> ballAlignedTime();
 
 double getSpeed(double const x) {
     return 3.75 * std::pow(1.45833, 15.0 * x - 8.0) + 25.0;
@@ -61,11 +67,12 @@ void loop() {
 
     Vector2 driveVector;
 
-    double driveSpeed;
+    double driveSpeed = 50.0;
 
-    bool ballAligned = alignedAvg.add(std::abs(bot->getBallVector().getY()) < 20) > 0;
+    bool ballAligned = alignedAvg.add(std::abs(bot->getBallVector().getY()) < 15 && bot->getBallVector().getX() > 5) > 0;
 
-    bool behindBall = behindBallAvg.add(bot->getBallVector().getX() > 0) == 1;
+    double behindBallAvgValue = behindBallAvg.add(bot->getBallVector().getX() > 0);
+    bool behindBall = behindBallAvgValue > 0.6;
 
     Vector2 ballVectorSpeed = bot->getBallVector();
 
@@ -74,36 +81,43 @@ void loop() {
     double vx = std::abs(ballVectorSpeed.getX());
     double vy = std::abs(ballVectorSpeed.getY());
 
-    if (!behindBall) {
-        double driveComponent = vx * vx + vy * vy * vy;
-
-        driveSpeed = getSpeed(driveComponent) * 1.3; // 67 auf 0,8
-    } else {
-        if (!ballAligned) {
-            driveSpeed = 60 * vy * vy;
-            driveSpeed = std::clamp(driveSpeed, 45.0, 75.0);
-        } else {
-            driveSpeed = 65;
+    if (ballAligned) {
+        if (!alreadyAligned) {
+            lastBallAlignedTimePoint = std::chrono::high_resolution_clock::now();
+            alreadyAligned = true;
         }
+
+        if (std::chrono::high_resolution_clock::now() - lastBallAlignedTimePoint > std::chrono::seconds(3)) {
+            hasBall = true;
+        }
+    } else {
+        alreadyAligned = false;
+        hasBall = false;
     }
 
-    driveSpeed = std::clamp(driveSpeed, 35.0, 80.0); // 67 auf 60
+    double driveComponent = vx * vx + vy * vy * vy;
+
+    double targetSpeed = !behindBall ? getSpeed(driveComponent) * 0.9 : std::clamp(65 * vy, 35.0, 65.0);
+
+    driveSpeed = 0.9 * driveSpeed + 0.1 * targetSpeed;
+
+    driveSpeed = std::clamp(driveSpeed, 35.0, 80.0);
 
     double rotationSpeedFactor = 0.0;
 
     double heading = 0.0;
 
-    if (bot->hasBall()) {
+    if (hasBall) {
         driveVector = bot->getGoalVector();
         driveVector.normalize();
 
-        heading = -bot->getGoalVector().getAngle();
+        heading = bot->getGoalVector().getAngle();
         rotationSpeedFactor = 8;
-    } else if (behindBall && ballAligned && !bot->hasBall()) {
+    } else if (behindBall && ballAligned && !hasBall) {
         driveVector = bot->getBallVector();
         driveVector.normalize();
 
-        heading = cmps14->getHeadingRad();
+        heading = -cmps14->getHeadingRad();
         rotationSpeedFactor = 9;
     } else {
         Vector2 ballVector = bot->getBallVector();
@@ -114,13 +128,16 @@ void loop() {
         driveVector = ballVector + ballVectorRotated;
         driveVector.normalize();
 
-        heading = cmps14->getHeadingRad();
+        heading = -cmps14->getHeadingRad();
         rotationSpeedFactor = 9;
     }
+
+    std::cout << hasBall << " " << ballAligned << " " << alreadyAligned << std::endl;
 
     driveVector *= driveSpeed;
 
     bot->drive(driveVector);
-    bot->setRotation(-heading * rotationSpeedFactor);
+    bot->setRotation(heading * rotationSpeedFactor);
+
     delay(5);
 }
