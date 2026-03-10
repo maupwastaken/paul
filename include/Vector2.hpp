@@ -180,7 +180,7 @@ public:
     *   ROTATION intern
     *
     ************************************************************/
-    void rotate(const double &angle_rad);
+    Vector2 rotate(const double &angle_rad);
 
     /************************************************************
     *

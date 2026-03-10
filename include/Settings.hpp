@@ -21,6 +21,16 @@ inline constexpr std::array<pin, 3> DIR_PINS = {19, 12, 32};
 inline constexpr pin LIGHT_BARRIER_PIN = 36;
 inline constexpr int LIGHT_BARRIER_THRESHOLD = 3000;
 
+inline constexpr double MAX_DRIVE_SPEED = 70;
+
+inline constexpr double ROTATION_kP = 25;
+inline constexpr double ROTATION_kI = 0.05;
+inline constexpr double ROTATION_kD = 120;
+
+inline constexpr double SPEED_kP = 1.5;
+inline constexpr double SPEED_kI = 0.0;
+inline constexpr double SPEED_kD = 0.35;
+
 inline constexpr auto BALL_ALIGNED_THRESHOLD = std::chrono::seconds(3);
 
 enum class MOTOR_CONFIGURATION : int {

@@ -1,5 +1,5 @@
 #include "Motor.hpp"
-#include "Config.hpp"
+#include "Settings.hpp"
 
 #include <Arduino.h>
 #include <iostream>

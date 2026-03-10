@@ -27,5 +27,6 @@ private:
     double _headingRad;
     double _headingDeg;
 
-    double _originHeadingRad;
+    double _originHeadingDeg;
+    double _rawHeadingDeg;
 };

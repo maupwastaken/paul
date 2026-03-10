@@ -33,6 +33,8 @@ public:
 
     [[nodiscard]] bool getHasBall() const;
 
+    [[nodiscard]] bool getGoalExists() const;
+
 private:
     void updateCMPS14Data();
 
@@ -59,6 +61,8 @@ private:
     bool _isBallAligned;
     bool _botBehindBall;
     bool _hasBall;
+
+    bool _goalExists;
 
     bool _usingLightBarrier;
 

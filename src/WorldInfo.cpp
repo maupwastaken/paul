@@ -10,6 +10,8 @@
 WorldInfo::WorldInfo(bool useLightBarrier) {
     Wire.begin();
 
+    delay(1000);
+
     _compass = std::make_unique<CMPS14>(CMPS14_ADDRESS);
     _compass->setOrigin();
     _isPixyRunning = isPixyRunning();
@@ -40,6 +42,8 @@ WorldInfo::WorldInfo(bool useLightBarrier) {
     _isBallAligned = false;
     _botBehindBall = false;
     _hasBall = false;
+
+    _goalExists = false;
 
     _usingLightBarrier = useLightBarrier;
 
@@ -90,6 +94,10 @@ bool WorldInfo::getHasBall() const {
     return _hasBall;
 }
 
+bool WorldInfo::getGoalExists() const {
+    return _goalExists;
+}
+
 void WorldInfo::updateCMPS14Data() {
     _compass->update();
 
@@ -97,29 +105,26 @@ void WorldInfo::updateCMPS14Data() {
 }
 
 void WorldInfo::updateIRData() {
-    Wire.requestFrom(IR_ADDRESS, 2);
+    Wire.requestFrom(IR_ADDRESS, sizeof(float) * 2);
 
-    std::vector<int> data;
+    std::vector<uint8_t> data;
 
     while (Wire.available()) {
-        data.push_back(Wire.read());
+        data.push_back(static_cast<uint8_t>(Wire.read()));
     }
 
-    if (data.size() != 2) {
+    if (data.size() != sizeof(float) * 2) {
         std::cerr << "Data size mismatch!" << std::endl;
     }
 
-    int dirRaw = data[0];
-    int ballDist = data[1];
+    float dir = 0.0f;
+    float dist = 0.0f;
 
-    dirRaw -= 32;
-    dirRaw *= -1;
+    memcpy(&dir, data.data(), sizeof(float));
+    memcpy(&dist, data.data() + sizeof(float), sizeof(float));
 
-    double ballDirDeg = dirRaw * 5.625;
-    double ballDirRad = ballDirDeg * std::numbers::pi / 180;
-
-    double ballX = std::cos(ballDirRad) * ballDist;
-    double ballY = std::sin(ballDirRad) * ballDist;
+    double ballX = std::cos(dir) * dist;
+    double ballY = std::sin(dir) * dist;
 
     _ballVector.setX(ballX);
     _ballVector.setY(ballY);
@@ -131,12 +136,20 @@ void WorldInfo::updatePixyData() {
     if (_pixy->ccc.numBlocks) {
         const auto b = _pixy->ccc.blocks[0];
 
-        const int dx = b.m_x - _resX / 2;
-        const int dy = _resY / 2 - b.m_y;
+        const int dx = b.m_x - 316 / 2;
+        const int dy = 208 / 2 - b.m_y;
 
         _goalVector.setX(dy);
         _goalVector.setY(dx);
+
+
+
+        _goalExists = true;
+
+        return;
     }
+
+    _goalExists = false;
 }
 
 void WorldInfo::updateBallData() {

@@ -161,10 +161,12 @@ Vector2 Vector2::scale_XY(const Vector2 &v, const double &a, const double &b) {
 ////////////////////////////////////////////////////////////////
 //--- ROTATION --- intern ------------------------------------//
 ////////////////////////////////////////////////////////////////
-void Vector2::rotate(const double &angle_rad) {
+Vector2 Vector2::rotate(const double &angle_rad) {
     this->_angle += angle_rad;
     this->update_XY();
     this->update_PhiRad();
+
+    return *this;
 }
 
 ////////////////////////////////////////////////////////////////

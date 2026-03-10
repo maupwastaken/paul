@@ -21,8 +21,6 @@ void Controller::motor(int motor, int speed) const {
         std::cerr << "Motor out of range!" << std::endl;
     }
 
-    std::cout << speed << std::endl;
-
     _motors[motor].speed(speed);
 }
 

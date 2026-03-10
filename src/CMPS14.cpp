@@ -8,7 +8,8 @@ CMPS14::CMPS14(int address) {
 
     _headingRad = 0.0;
     _headingDeg = 0.0;
-    _originHeadingRad = 0.0;
+    _rawHeadingDeg = 0.0;
+    _originHeadingDeg = 0.0;
 }
 
 double CMPS14::getHeadingRad() {
@@ -20,12 +21,12 @@ double CMPS14::getHeadingDeg() {
 }
 
 void CMPS14::setOrigin() {
-    update();
-    _originHeadingRad = _headingRad;
+    update();                 // get fresh raw value
+    _originHeadingDeg = _rawHeadingDeg;
 }
 
 void CMPS14::setOrigin(const double origin) {
-    _originHeadingRad = origin;
+    _originHeadingDeg = origin / std::numbers::pi * 180;
 }
 
 void CMPS14::update() {
@@ -42,15 +43,13 @@ void CMPS14::update() {
         uint8_t low = Wire.read();
         heading = (high << 8) | low;
 
-        double headingDeg = heading / 10.0 - 180.0;
-        double originDeg = _originHeadingRad / std::numbers::pi * 180.0;
+        _rawHeadingDeg = heading / 10.0 - 180.0;
 
-        _headingDeg = wrapDeg(headingDeg - originDeg);
-        _headingRad = _headingDeg * std::numbers::pi / 180.0;
-
-        _headingRad = _headingDeg / 180.0 * std::numbers::pi;
+        _headingDeg = wrapDeg(_rawHeadingDeg - _originHeadingDeg);
+        _headingRad = _headingDeg * M_PI / 180.0;
     }
 }
+
 
 double CMPS14::wrapDeg(double deg) {
     deg = fmod(deg + 180.0, 360.0);

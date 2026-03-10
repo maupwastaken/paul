@@ -6,7 +6,7 @@
 
 #include "Controller.hpp"
 #include "WorldInfo.hpp"
-#include "I2CButton.hpp"
+#include "Helper.hpp"
 
 class Logic {
 public:
@@ -16,10 +16,25 @@ public:
 
     void standBy();
 
+    std::unique_ptr<WorldInfo> worldInfo;
+
 private:
+    void driveBehindBall();
+
+    void driveToBall();
+
+    void driveToGoal();
+
+    double _currentHeading;
+
+    double _driveSpeed;
+
+    Vector2 _driveVector;
+
     std::unique_ptr<Controller> _controller;
 
-    std::unique_ptr<WorldInfo> _worldInfo;
+    std::unique_ptr<RotationPID> _rotationPID;
 
-    std::unique_ptr<I2CButton> _button;
+    std::unique_ptr<SpeedPID> _xPID;
+    std::unique_ptr<SpeedPID> _yPID;
 };
