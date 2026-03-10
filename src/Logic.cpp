@@ -7,7 +7,7 @@
 #include <iostream>
 
 Logic::Logic() {
-    worldInfo = std::make_unique<WorldInfo>(false);
+    worldInfo = std::make_unique<WorldInfo>(true);
     _controller = std::make_unique<Controller>();
     _rotationPID = std::make_unique<RotationPID>(ROTATION_kP, ROTATION_kI, ROTATION_kD);
 
@@ -42,7 +42,8 @@ void Logic::run() {
 
         heading = worldInfo->getCurrentHeading();
     } else {
-        Vector2 ballVectorRotated = worldInfo->getBallVector().rotate(worldInfo->getBallVector().getSignY() * std::numbers::pi / 2);
+        Vector2 ballVectorRotated = worldInfo->getBallVector().rotate(
+            worldInfo->getBallVector().getSignY() * std::numbers::pi / 2);
 
         ballVectorRotated.normalize();
         ballVectorRotated *= 35.0;

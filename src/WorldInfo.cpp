@@ -115,6 +115,7 @@ void WorldInfo::updateIRData() {
 
     if (data.size() != sizeof(float) * 2) {
         std::cerr << "Data size mismatch!" << std::endl;
+        return;
     }
 
     float dir = 0.0f;

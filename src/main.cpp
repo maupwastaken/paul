@@ -30,8 +30,6 @@ void loop() {
     button->setColor(ButtonSide::LEFT, logic->worldInfo->getHasBall() ? Color::WHITE : Color::OFF);
 
 
-    std::cout << logic->worldInfo->getGoalVector() << std::endl;
-
     if (isRunning) {
         logic->run();
     } else {

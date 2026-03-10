@@ -31,7 +31,7 @@ inline constexpr double SPEED_kP = 1.5;
 inline constexpr double SPEED_kI = 0.0;
 inline constexpr double SPEED_kD = 0.35;
 
-inline constexpr auto BALL_ALIGNED_THRESHOLD = std::chrono::seconds(3);
+inline constexpr auto BALL_ALIGNED_THRESHOLD = std::chrono::seconds(1);
 
 enum class MOTOR_CONFIGURATION : int {
     RIGHT = 1,
