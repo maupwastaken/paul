@@ -122,29 +122,27 @@ void Controller::updateDrive() {
 }
 
 void Controller::updateIRData() {
-    Wire.requestFrom(IR_ADDRESS, 2);
+    Wire.requestFrom(IR_ADDRESS, sizeof(float) * 2);
 
-    std::vector<int> data;
+    std::vector<uint8_t> data;
 
     while (Wire.available()) {
-        data.push_back(Wire.read());
+        data.push_back(static_cast<uint8_t>(Wire.read()));
     }
 
-    if (data.size() != 2) {
+    if (data.size() != sizeof(float) * 2) {
         std::cerr << "Data size mismatch!" << std::endl;
+        return;
     }
 
-    int dirRaw = data[0];
-    int ballDist = data[1];
+    float dir = 0.0f;
+    float dist = 0.0f;
 
-    dirRaw -= 32;
-    dirRaw *= -1;
+    memcpy(&dir, data.data(), sizeof(float));
+    memcpy(&dist, data.data() + sizeof(float), sizeof(float));
 
-    double ballDirDeg = dirRaw * 5.625;
-    double ballDirRad = ballDirDeg * std::numbers::pi / 180;
-
-    double ballX = std::cos(ballDirRad) * ballDist;
-    double ballY = std::sin(ballDirRad) * ballDist;
+    double ballX = std::cos(dir) * dist;
+    double ballY = std::sin(dir) * dist;
 
     _ballVector.setX(ballX);
     _ballVector.setY(ballY);
