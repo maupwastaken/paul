@@ -24,39 +24,41 @@ void Logic::run() {
     worldInfo->update();
 
     _rotationPID->rotationPID->setState(PIDState::ON);
+    _xPID->speedPID->setState(PIDState::ON);
+    _yPID->speedPID->setState(PIDState::ON);
 
-    double speed = 40.0;
-    double heading = 0.0;
+    double heading = worldInfo->getCurrentHeading();
 
-    if (worldInfo->getHasBall()) {
-        if (worldInfo->getGoalExists()) {
-            _driveVector = worldInfo->getGoalVector();
-        } else {
-            _driveVector = Vector2(0, 1 * worldInfo->getGoalVector().getAngle()).normalize();
+    _rotationPID->rotationPID->setTargetPoint(0);
 
-            std::cout << _driveVector << std::endl;
+    if (!worldInfo->isBallAligned()) {
+        Vector2 relativeBallPosition = worldInfo->getBallVector().rotate(heading);
+        Vector2 relativeBallTarget = relativeBallPosition - Vector2(40, 0);
+
+        _xPID->speedPID->compute(relativeBallTarget.getX());
+        _yPID->speedPID->compute(relativeBallTarget.getY());
+
+        _driveVector = Vector2(_xPID->speedPID->getOutput(), _yPID->speedPID->getOutput() * 0.75);
+
+        if (worldInfo->getBallVector().getMagnitude() > 60) {
+            _driveVector = _driveVector.normalize() * 50;
         }
-        heading = worldInfo->getCurrentHeading();
-    } else if (worldInfo->botBehindBall() && worldInfo->isBallAligned()) {
-        _driveVector = worldInfo->getBallVector();
+    } else if (!worldInfo->getHasBall()) {
+        _driveVector = worldInfo->getBallVector().normalize();
 
-        heading = worldInfo->getCurrentHeading();
+        _driveVector *= 50;
     } else {
-        Vector2 ballVectorRotated = worldInfo->getBallVector().rotate(
-            worldInfo->getBallVector().getSignY() * std::numbers::pi / 2);
+        _driveVector = worldInfo->getBallVector().normalize();
 
-        ballVectorRotated.normalize();
-        ballVectorRotated *= 35.0;
+        _driveVector *= 25;
 
-        _driveVector = worldInfo->getBallVector() + ballVectorRotated;
-
-        heading = worldInfo->getCurrentHeading();
+        heading = -worldInfo->getGoalVector().getAngle();
     }
 
     _rotationPID->rotationPID->compute(heading);
 
     _controller->setRotation(_rotationPID->rotationPID->getOutput());
-    _controller->drive(_driveVector.normalize() * speed);
+    _controller->drive(_driveVector);
     _controller->updateDrive();
 }
 

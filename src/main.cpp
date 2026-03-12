@@ -27,8 +27,7 @@ void loop() {
     }
 
     button->setColor(ButtonSide::RIGHT, logic->worldInfo->getGoalExists() ? Color::WHITE : Color::OFF);
-    button->setColor(ButtonSide::LEFT, logic->worldInfo->getHasBall() ? Color::WHITE : Color::OFF);
-
+    button->setColor(ButtonSide::LEFT, logic->worldInfo->isBallAligned() ? Color::WHITE : Color::OFF);
 
     if (isRunning) {
         logic->run();

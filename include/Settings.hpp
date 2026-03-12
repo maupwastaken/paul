@@ -27,9 +27,9 @@ inline constexpr double ROTATION_kP = 25;
 inline constexpr double ROTATION_kI = 0.05;
 inline constexpr double ROTATION_kD = 120;
 
-inline constexpr double SPEED_kP = 1.5;
-inline constexpr double SPEED_kI = 0.0;
-inline constexpr double SPEED_kD = 0.35;
+inline constexpr double SPEED_kP = 1.25;
+inline constexpr double SPEED_kI = 0;
+inline constexpr double SPEED_kD = 0;
 
 inline constexpr auto BALL_ALIGNED_THRESHOLD = std::chrono::seconds(1);
 

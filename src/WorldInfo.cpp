@@ -10,7 +10,7 @@
 WorldInfo::WorldInfo(bool useLightBarrier) {
     Wire.begin();
 
-    delay(1000);
+    delay(3000);
 
     _compass = std::make_unique<CMPS14>(CMPS14_ADDRESS);
     _compass->setOrigin();
@@ -59,6 +59,13 @@ void WorldInfo::update() {
 
     if (_isPixyRunning) {
         updatePixyData();
+
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - _goalLastSeenTime).count() < 100) {
+            _goalExists = true;
+            
+            return;
+        }
+        _goalExists = false;
     }
 }
 
@@ -143,21 +150,15 @@ void WorldInfo::updatePixyData() {
         _goalVector.setX(dy);
         _goalVector.setY(dx);
 
-
-
-        _goalExists = true;
-
-        return;
+        _goalLastSeenTime = std::chrono::high_resolution_clock::now();
     }
-
-    _goalExists = false;
 }
 
 void WorldInfo::updateBallData() {
     const auto now = std::chrono::high_resolution_clock::now();
 
-    _isBallAligned = std::abs(_ballVector.getAngle()) < std::numbers::pi / 8.0;
     _botBehindBall = _ballVector.getSignX() == 1;
+    _isBallAligned = std::abs(_ballVector.getAngle()) < std::numbers::pi / 8.0 && _botBehindBall;
 
     if (_usingLightBarrier) {
         _hasBall = analogRead(LIGHT_BARRIER_PIN) > LIGHT_BARRIER_THRESHOLD;
